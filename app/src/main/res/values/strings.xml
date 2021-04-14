@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Whats App Clone</string>
+
+    <string name="APP_ID">X6foBSivwdW64PWMpBmpjNwSNAkNxLqGTvDQP3I2</string>
+    <string name="CLIENT_KEY">1DwCD6apz8Wb5ZFlaoB6sUCfCPfjkuUJUfi7DfxP</string>
+    <string name="URL">https://parseapi.back4app.com/</string>
+
+
+</resources>
