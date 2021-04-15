@@ -54,7 +54,7 @@ public class UsersActivity extends AppCompatActivity implements
                 // Make sure you call swipeContainer.setRefreshing(false)
                 // once the network request has completed successfully.
                 updateUsers();
-                swipeRefreshLayout.setRefreshing(false);
+               // swipeRefreshLayout.setRefreshing(false);
             }
         });
 
@@ -80,16 +80,33 @@ public class UsersActivity extends AppCompatActivity implements
                 parseUserParseQuery.whereNotEqualTo("username",
                         ParseUser.getCurrentUser().getUsername());
 
+//                exclude users already in the arraylist & listview, only new users
+                parseUserParseQuery.whereNotContainedIn("username", mArrayListUsers);
+
                 parseUserParseQuery.findInBackground(new FindCallback<ParseUser>() {
                     @Override
                     public void done(List<ParseUser> users, ParseException e) {
-                        if (users.size() > 0 && e == null) {
-                            mArrayListUsers.clear();
-                            for (ParseUser whatAppUser : users) {
-                                mArrayListUsers.add(whatAppUser.getUsername());
 
+                        if (users.size() > 0) {
+                            if (e == null) {
+                                for (ParseUser whatAppUser : users) {
+                                    // add to existing arraylist names
+                                    mArrayListUsers.add(whatAppUser.getUsername());
+
+                                }
+                                // same as resetting the listview adapter
+                                mArrayAdapter.notifyDataSetChanged();
+                                // stop refreshing
+                                if(swipeRefreshLayout.isRefreshing()) {
+                                    swipeRefreshLayout.setRefreshing(false);
+                                }
                             }
-                            listViewUsers.setAdapter(mArrayAdapter);
+
+                        } else {
+                            // the list returned is empty, so... cancel refreshing
+                            if(swipeRefreshLayout.isRefreshing()) {
+                                swipeRefreshLayout.setRefreshing(false);
+                            }
 
                         }
                     }
@@ -97,9 +114,8 @@ public class UsersActivity extends AppCompatActivity implements
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            ex.getMessage();
         }
-
-
     }
 
     private void showWhatsAppUsers() {
@@ -118,7 +134,7 @@ public class UsersActivity extends AppCompatActivity implements
 
                             for (ParseUser whatAppUser : users) {
                                 mArrayListUsers.add(whatAppUser.getUsername());
-                                
+
                             }
                             listViewUsers.setAdapter(mArrayAdapter);
 
@@ -128,6 +144,7 @@ public class UsersActivity extends AppCompatActivity implements
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            ex.getMessage();
         }
 
     }
@@ -173,6 +190,7 @@ public class UsersActivity extends AppCompatActivity implements
                             FancyToast.LENGTH_LONG, FancyToast.ERROR, true).show();
                 }
                 break;
+
             default:
                 break;
         }
@@ -182,6 +200,19 @@ public class UsersActivity extends AppCompatActivity implements
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        // go to the chat screen with the message directed at the item clicked on
+
+        Intent intentToChatActivity = new Intent(UsersActivity.this, ChatActivity.class);
+        intentToChatActivity.putExtra("waTargetRecipient", mArrayListUsers.get(position));
+        startActivity(intentToChatActivity);
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(UsersActivity.this, MainActivity.class));
+        finish();
 
     }
 
